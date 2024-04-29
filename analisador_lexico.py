@@ -14,7 +14,6 @@ class UCyanLexer(Lexer):
         'print': "PRINT",
         'if': "IF",
         'else': "ELSE",
-        'var': "VAR"
     }
 
     # All the tokens recognized by the lexer
@@ -24,7 +23,6 @@ class UCyanLexer(Lexer):
         # constants
         "INT_CONST",
         "CHAR_CONST",
-        "erro_c",
     )
 
     # String containing ignored characters (between tokens)
@@ -39,8 +37,6 @@ class UCyanLexer(Lexer):
     INT_CONST = # <<< INCLUDE A REGEX HERE FOR INT_CONST >>>
     CHAR_CONST = # <<< INCLUDE A REGEX HERE FOR CHAR_CONST >>>
     # <<< YOUR CODE HERE >>>
-    
-    erroc = 
 
     # Special cases
     def ID(self, t):
@@ -71,10 +67,6 @@ class UCyanLexer(Lexer):
     # Error handling rule
     def error(self, t):
         msg = "Illegal character %s" % repr(t.value[0])
-        self._error(msg, t)
-        
-    def error_c(self, t):
-        msg = "lineno: Unterminated character const"
         self._error(msg, t)
 
     # Scanner (used only for test)

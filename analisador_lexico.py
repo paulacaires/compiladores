@@ -14,29 +14,50 @@ class UCyanLexer(Lexer):
         'print': "PRINT",
         'if': "IF",
         'else': "ELSE",
+        'var': "VAR",
+        'while': "WHILE"
     }
 
     # All the tokens recognized by the lexer
     tokens = tuple(keywords.values()) + (
         # Identifiers
         "ID",
+        "VAR", 
         # constants
         "INT_CONST",
         "CHAR_CONST",
+        
+		"EQUALS",
+		"SEMI",
+		"LT",
+		"LBRACE",
+		"TIMES",
+		"PRINT",
+		"PLUS",
+		"RBRACE"
     )
 
     # String containing ignored characters (between tokens)
     ignore = " \t"
 
     # Other ignored patterns
-    ignore_newline = # <<< INCLUDE A REGEX HERE FOR NEWLINE >>>
-    ignore_comment = # <<< INCLUDE A REGEX HERE FOR COMMENT >>>
+    ignore_newline = r"\n"
+	# Reconhece os dois tipos de comentário: // e /* */
+    ignore_comment = r"//?\*?.*\*?/?"
 
     # Regular expression rules for tokens
-    ID = # <<< INCLUDE A REGEX HERE FOR ID >>>
-    INT_CONST = # <<< INCLUDE A REGEX HERE FOR INT_CONST >>>
-    CHAR_CONST = # <<< INCLUDE A REGEX HERE FOR CHAR_CONST >>>
-    # <<< YOUR CODE HERE >>>
+    ID = r"[a-zA-Z_][a-zA-Z0-9_]*"
+    INT_CONST = r"[0-9]+"
+    CHAR_CONST = r"[a-z]"
+    EQUALS = r"="
+    SEMI = r";"
+    # <= deve vir aqui!
+    LT = r"<"
+    LBRACE = r"{"
+    TIMES = r"\*"
+    PLUS = r"\+"
+    RBRACE = r"}"
+    # erro_char =
 
     # Special cases
     def ID(self, t):
@@ -67,6 +88,10 @@ class UCyanLexer(Lexer):
     # Error handling rule
     def error(self, t):
         msg = "Illegal character %s" % repr(t.value[0])
+        self._error(msg, t)
+        
+    def error_char(self, t):
+        msg = "lineno: Unterminated character const"
         self._error(msg, t)
 
     # Scanner (used only for test)

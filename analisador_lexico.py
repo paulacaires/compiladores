@@ -15,7 +15,11 @@ class UCyanLexer(Lexer):
         'if': "IF",
         'else': "ELSE",
         'var': "VAR",
-        'while': "WHILE"
+        'while': "WHILE",
+		'true': "TRUE",
+		'let': "LET",
+		'break': "BREAK",
+		'continue': "CONTINUE"
     }
 
     # All the tokens recognized by the lexer
@@ -24,9 +28,10 @@ class UCyanLexer(Lexer):
         "ID",
         "VAR", 
         # constants
+        "FLOAT_CONST",
         "INT_CONST",
         "CHAR_CONST",
-        
+        "EQ",
 		"EQUALS",
 		"SEMI",
 		"LT",
@@ -34,7 +39,13 @@ class UCyanLexer(Lexer):
 		"TIMES",
 		"PRINT",
 		"PLUS",
-		"RBRACE"
+		"RBRACE",
+		"MINUS",
+		"DIVIDE",
+		"LPAREN",
+		"RPAREN",
+		"GT",
+		"AND"
     )
 
     # String containing ignored characters (between tokens)
@@ -42,13 +53,15 @@ class UCyanLexer(Lexer):
 
     # Other ignored patterns
     ignore_newline = r"\n"
-	# Reconhece os dois tipos de comentário: // e /* */
-    ignore_comment = r"//?\*?.*\*?/?"
+	# Reconhece os dois tipos de comentário: // e /* */ sem conflitar com a divisão "/"
+    ignore_comment = r"\/{2}.*|(\/\*).*\*?\/?"
 
     # Regular expression rules for tokens
     ID = r"[a-zA-Z_][a-zA-Z0-9_]*"
+    FLOAT_CONST = r"[0-9]+.[0-9]+"
     INT_CONST = r"[0-9]+"
-    CHAR_CONST = r"[a-z]"
+    CHAR_CONST = r"'.*(\\n)?'" #PROBLEMAS: print 'BLABLA' não pode, tem que ser um só
+    EQ = r'=='
     EQUALS = r"="
     SEMI = r";"
     # <= deve vir aqui!
@@ -57,6 +70,14 @@ class UCyanLexer(Lexer):
     TIMES = r"\*"
     PLUS = r"\+"
     RBRACE = r"}"
+    MINUS = r"-"
+    DIVIDE = r"\/"
+    LPAREN = r"\("
+    RPAREN = r"\)"
+    GT = r">"
+    AND = r"&&"
+    
+        
     # erro_char =
 
     # Special cases

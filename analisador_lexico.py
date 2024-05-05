@@ -31,6 +31,8 @@ class UCyanLexer(Lexer):
         "FLOAT_CONST",
         "INT_CONST",
         "CHAR_CONST",
+        "GE",
+        "LE",
         "EQ",
 		"EQUALS",
 		"SEMI",
@@ -53,9 +55,8 @@ class UCyanLexer(Lexer):
 
     # Other ignored patterns
     ignore_newline = r"\n"
-	# Reconhece os dois tipos de comentário: // e /* */ sem conflitar com a divisão "/"
-    ignore_comment = r"\/{2}.*|(\/\*).*\*?\/?"
-
+    ignore_comment = r"\/{2}.*|\/\*(.|\n)*?\*\/"
+	
     # Regular expression rules for tokens
     ID = r"[a-zA-Z_][a-zA-Z0-9_]*"
     FLOAT_CONST = r"[0-9]+.[0-9]+"
@@ -65,6 +66,8 @@ class UCyanLexer(Lexer):
     EQUALS = r"="
     SEMI = r";"
     # <= deve vir aqui!
+    GE = r">="
+    LE = r"<="
     LT = r"<"
     LBRACE = r"{"
     TIMES = r"\*"
@@ -76,7 +79,7 @@ class UCyanLexer(Lexer):
     RPAREN = r"\)"
     GT = r">"
     AND = r"&&"
-    
+   
         
     # erro_char =
 

@@ -47,7 +47,8 @@ class UCyanLexer(Lexer):
 		"LPAREN",
 		"RPAREN",
 		"GT",
-		"AND"
+		"AND",
+		"ERROR_UNTERM_COMMENT"
     )
 
     # String containing ignored characters (between tokens)
@@ -62,6 +63,7 @@ class UCyanLexer(Lexer):
     FLOAT_CONST = r"[0-9]+.[0-9]+"
     INT_CONST = r"[0-9]+"
     CHAR_CONST = r"'.*(\\n)?'" #PROBLEMAS: print 'BLABLA' não pode, tem que ser um só
+    ERROR_UNTERM_COMMENT = r"\/\*.*"
     EQ = r'=='
     EQUALS = r"="
     SEMI = r";"
@@ -79,10 +81,7 @@ class UCyanLexer(Lexer):
     RPAREN = r"\)"
     GT = r">"
     AND = r"&&"
-   
-        
-    # erro_char =
-
+     
     # Special cases
     def ID(self, t):
       t.type = self.keywords.get(t.value, "ID")
@@ -109,7 +108,11 @@ class UCyanLexer(Lexer):
     def _make_location(self, token):
         return token.lineno, self.find_column(token)
 
-    # Error handling rule
+    # Error handling rule    
+    def ERROR_UNTERM_COMMENT(self, t):
+	    msg = "Unterminated comment"
+	    self._error(msg, t)
+    
     def error(self, t):
         msg = "Illegal character %s" % repr(t.value[0])
         self._error(msg, t)

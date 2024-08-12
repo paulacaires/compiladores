@@ -5,8 +5,13 @@ class UCyanParser(Parser):
     tokens = UCyanLexer.tokens
 
     precedence = (
-        ('left', PLUS, MINUS),
-        ('left', TIMES, DIVIDE),
+        ('right', 'EQUALS'),
+        ('left', 'OR', 'AND', 'EQ', 'NE'),
+        ('left', 'LT', 'GT', 'LE', 'GE'),
+        ('left', 'PLUS', 'MINUS'),
+        ('left', 'TIMES', 'DIVIDE'),
+        ('right', 'NOT'),
+        ('right', 'ELSE'),
     )
 
     def __init__(self, error_func=lambda msg, x, y: print("Lexical error: %s at %d:%d" % (msg, x, y), file=sys.stdout)):
@@ -71,19 +76,32 @@ class UCyanParser(Parser):
     # <assign_statement> ::= <identifier> "=" <expr> ";"
     @_('ID EQUALS expr SEMI')
     def assign_statement(self, p):
-        return ('assign @ %d:%d' % self._token_coord(p), p.identifier, p.expr)
+        return ('assign @ %d:%d' % self._token_coord(p), p.ID, p.expr)
 
+    # {símbolos}?  ==> Zero ou uma ocorrência de símbolos (opcional)
     # <variable_definition> ::= "var" { <type> }? <identifier> "=" <expr> ";"
     #                         | "var" <type> <identifier> { "=" <expr> }? ";"
-    @_('VAR { type } ID EQUALS expr SEMI',
-       'VAR type ID { EQUALS expr } SEMI')
+
+    @_('VAR type ID EQUALS expr SEMI')
     def variable_definition(self, p):
-      return ('variable @ %d:%d' % self._token_coord(p), p.identifier) 
+      return ('variable: @ %d:%d' % self._token_coord(p), p.ID)
+
+    @_('VAR ID EQUALS expr SEMI') 
+    def variable_definition(self, p):
+      ('variable: @ %d:%d' % self._token_coord(p), p.ID)  
+
+    @_('VAR type ID SEMI')
+    def variable_definition(self, p):
+      ('variable: @ %d:%d' % self._token_coord(p), p.ID)  
 
     # <const_definition> ::= "const" { <type> }? <identifier> "=" <expr> ";"
-    @_('LET { type } ID EQUALS expr SEMI')
+    @_('LET type ID EQUALS expr SEMI')
     def const_definition(self, p):
-      return ('const @ %d:%d' % self._token_coord(p), p.identifier)
+      return ('const @ %d:%d' % self._token_coord(p), p.ID)
+
+    @_('LET ID EQUALS expr SEMI ')
+    def const_definition(self, p):
+      return ('const @ %d:%d' % self._token_coord(p), p.ID)
 
     # <if_statement> ::= "if" <expr> "{" <statements> "}" { "else" "{" <statements> "}" }?
     @_('IF expr LBRACE statements RBRACE { ELSE LBRACE statements RBRACE }')
@@ -110,7 +128,7 @@ class UCyanParser(Parser):
     # <type>     ::= <identifier>
     @_('ID')
     def type(self, p):
-      return ('type: ' + str(p.identifier) + ' @ %d:%d' % self._token_coord(p))
+      return ('type: ' + str(p.ID) + ' @ %d:%d' % self._token_coord(p))
 
     # <expr> ::= <expr> "+" <expr>
     #         | <expr> "-" <expr>
@@ -129,7 +147,7 @@ class UCyanParser(Parser):
        'expr TIMES expr',
 	     'expr DIVIDE expr',
        'expr LT expr',
-       'expr LTE expr',
+       'expr LE expr',
        'expr GT expr',
        'expr GE expr',
        'expr EQ expr',
@@ -163,20 +181,30 @@ class UCyanParser(Parser):
     def expr(self, p):
       return p[0]
 
+    '''
+    literal = tuple('literal: int, ' + str(INT_CONST) + ' @ lineno:column')
+        | tuple('literal: float, ' + str(FLOAT_CONST) + ' @ lineno:column')
+        | tuple('literal: char, ' + str(CHAR_CONST) + ' @ lineno:column')
+        | tuple('literal: bool, true @ lineno:column')
+        | tuple('literal: bool, false @ lineno:column')
+    '''  
     # <literal> ::= <integer_constant>
     #             | <float_constant>
     #             | <character_constant>
-    #             | "true"
-    #             | "false"
     @_('INT_CONST',
        'FLOAT_CONST',
-       'CHAR_CONST',
-       'TRUE',
+       'CHAR_CONST')
+    def literal(self, p):
+        return ('literal: %s, @ %d:%d' % ((p[0],) + self._token_coord(p)))
+
+    # <literal> ::= "true"
+    #             | "false"
+    @_('TRUE', 
        'FALSE')
     def literal(self, p):
-        return ('literal: %s, %s @ %d:%d' % ((p[0],) + self._token_coord(p)))
+        return ('literal: bool, @ %d:%d' + self._token_coord(p),)
 
     # <location> ::= <identifier>
     @_('VAR')
     def location(self, p):
-      return ('location: ' + str(p.identifier) + ' @ %d:%d' % self._token_coord(p)) 
+      return ('location: ' + str(p.VAR) + ' @ %d:%d' % self._token_coord(p)) 

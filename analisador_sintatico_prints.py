@@ -68,11 +68,14 @@ class UCyanParser(Parser):
        'if_statement',
        'while_statement',
        'break_statement',
-       'continue_statement',
-       'expr SEMI')
+       'continue_statement')
     def statement(self, p):
         print('statement ')
         return p[0]
+
+    @_('expr SEMI')
+    def statement(self, p):
+      return ('expr', p.expr,)
 
     # <print_statement> ::= PRINT <expr> ";"
     @_('PRINT expr SEMI')
@@ -80,67 +83,64 @@ class UCyanParser(Parser):
         print('print_statement ')
         return ('print @ %d:%d' % self._token_coord(p), p.expr)
 
-    # <assign_statement> ::= <identifier> "=" <expr> ";"
-    @_('ID EQUALS expr SEMI')
+    # <assignment_statement> ::= <location> "=" <expr> ";"
+    @_('location EQUALS expr SEMI')
     def assign_statement(self, p):
-        print('assign_statement ' + p.ID)
-        return ('assign @ %d:%d' % self._token_coord(p), p.ID, p.expr)
+        print('assign_statement ')
+        return ('assignment @ %d:%d' % self._token_coord(p), p.location, p.expr)
 
     # {símbolos}?  ==> Zero ou uma ocorrência de símbolos (opcional)
     # <variable_definition> ::= "var" { <type> }? <identifier> "=" <expr> ";"
     #                         | "var" <type> <identifier> { "=" <expr> }? ";"
-
     @_('VAR type ID EQUALS expr SEMI')
     def variable_definition(self, p):
       print('variable_definition1 ' + p.ID)
-      return ('variable: @ %d:%d' % self._token_coord(p), p.ID)
+      return ('variable: ' + p.ID + ' @ %d:%d' % self._token_coord(p), p.type, p.expr)
 
     @_('VAR ID EQUALS expr SEMI')
     def variable_definition(self, p):
       print('variable_definition2 ' + p.ID)
-      ('variable: @ %d:%d' % self._token_coord(p), p.ID)
+      return ('variable: ' + p.ID + ' @ %d:%d' % self._token_coord(p), p.type, p.expr)
 
     @_('VAR type ID SEMI')
     def variable_definition(self, p):
       print('variable_definition3 ' + p.ID)
-      ('variable: @ %d:%d' % self._token_coord(p), p.ID)
+      return ('variable: ' + p.ID + ' @ %d:%d' % self._token_coord(p), p.type, p.expr)
 
-    # <const_definition> ::= "const" { <type> }? <identifier> "=" <expr> ";"
+    # <const_definition> ::= "let" { <type> }? <identifier> "=" <expr> ";"
     @_('LET type ID EQUALS expr SEMI')
     def const_definition(self, p):
       print('const_definition1' + p.ID)
-      return ('const @ %d:%d' % self._token_coord(p), p.ID)
+      return ('const: ' + p.ID + ' @ %d:%d' % self._token_coord(p), p.type, p.expr)
 
     @_('LET ID EQUALS expr SEMI ')
     def const_definition(self, p):
       print('const_definition2' + p.ID)
-      return ('const @ %d:%d' % self._token_coord(p), p.ID)
+      return ('const: ' + p.ID + ' @ %d:%d' % self._token_coord(p), p.type, p.expr)
 
     # <if_statement> ::= "if" <expr> "{" <statements> "}" { "else" "{" <statements> "}" }?
     @_('IF expr LBRACE statements RBRACE { ELSE LBRACE statements RBRACE }')
     def if_statement(self, p):
       print('if_statement')
       return ('if @ %d:%d' % self._token_coord(p), p.expr, p.statements0, p.statements1)
-      # tuple('if @ lineno:column', expr, statements0, statements1)
 
     # <while_statement> ::= "while" <expr> "{" <statements> "}"
     @_('WHILE expr LBRACE statements RBRACE')
     def while_statement(self, p):
       print('while')
       return ('while @ %d:%d' % self._token_coord(p), p.expr, p.statements)
-      # tuple('while @ lineno:column', expr, statements)
 
     # <break_statement> ::= "break" ";"
     @_('BREAK SEMI')
     def break_statement(self, p):
       print('break_statement')
-      return ('break @ %d:%d' % self._token_coord(p))
+      return ('break @ %d:%d' % self._token_coord(p),)
 
     # <continue_statement> ::= "continue" ";"
     @_('CONTINUE SEMI')
     def continue_statement(self, p):
       print('continue_statement')
-      return ('continue @ %d:%d' % self._token_coord(p))
+      return ('continue @ %d:%d' % self._token_coord(p),)
 
     # <type>     ::= <identifier>
     @_('ID')
@@ -173,9 +173,10 @@ class UCyanParser(Parser):
        'expr AND expr',
        'expr OR expr')
     def expr(self, p):
-        print('binary expr ')
-        return ('binary_op: %s @ %d:%d' % ((p[1],) + self._token_coord(p)))
-
+        print('binary expr ') 
+        return ('binary_op: ' + p[1] + ' @ %d:%d' %self._token_coord(p), p.expr0, p.expr1)    
+        # tuple('binary_op: + @ lineno:column', expr0, expr1)   
+        
     # <expr> ::= "+" <expr>
     #         | "-" <expr>
     #         | "!" <expr>
@@ -184,7 +185,7 @@ class UCyanParser(Parser):
        'NE expr')
     def expr(self, p):
         print ('unary expr ')
-        return ('unary_op: %s @ %d:%d' % ((p[1],) + self._token_coord(p)))
+        return ('unary_op: ' + p[0] + ' @ %d:%d' %self._token_coord(p), p.expr)
 
     # <expr> ::= "(" <expr> ")"
     @_('LPAREN expr RPAREN')
@@ -196,7 +197,7 @@ class UCyanParser(Parser):
     @_('literal')
     def expr(self, p):
         print('expr literal ')
-        return p[0]
+        return p.literal
 
     # <expr> ::= <location>
     @_('location')
@@ -216,9 +217,10 @@ class UCyanParser(Parser):
        'FLOAT_CONST',
        'CHAR_CONST')
     def literal(self, p):
-        print('literal ')
-        return ('literal: %s, @ %d:%d' % ((p[0],) + self._token_coord(p)))
-        # tuple('literal: int, ' + str(INT_CONST) + ' @ lineno:column')
+      if hasattr(p, 'INT_CONST'): return ('literal: int, %s @ %d:%d' % ((p[0],) + self._token_coord(p)))
+      elif hasattr(p, 'FLOAT_CONST'): return ('literal: float, %s @ %d:%d' % ((p[0],) + self._token_coord(p)))
+      elif hasattr(p, 'CHAR_CONST'): return ('literal: char, %s @ %d:%d' % ((p[0],) + self._token_coord(p)))
+      # tuple('literal: int, ' + str(INT_CONST) + ' @ lineno:column')
 
     '''
     literal = tuple('literal: bool, true @ lineno:column')

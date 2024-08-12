@@ -90,11 +90,12 @@ class UCyanParser(Parser):
 
     @_('VAR ID EQUALS expr SEMI')
     def variable_definition(self, p):
-      return ('variable: ' + p.ID + ' @ %d:%d' % self._token_coord(p), p.type, p.expr)
+      return ('variable: ' + p.ID + ' @ %d:%d' % self._token_coord(p), None, p.expr)
 
     @_('VAR type ID SEMI')
     def variable_definition(self, p):
-      return ('variable: ' + p.ID + ' @ %d:%d' % self._token_coord(p), p.type, p.expr)
+      return ('variable: ' + p.ID + ' @ %d:%d' % self._token_coord(p), p.type, None)
+      # tuple('variable: ' + str(ID) + ' @ lineno:column', type, expr)
 
     # <const_definition> ::= "let" { <type> }? <identifier> "=" <expr> ";"
     @_('LET type ID EQUALS expr SEMI')
@@ -103,7 +104,8 @@ class UCyanParser(Parser):
 
     @_('LET ID EQUALS expr SEMI ')
     def const_definition(self, p):
-      return ('const: ' + p.ID + ' @ %d:%d' % self._token_coord(p), p.type, p.expr)
+      return ('const: ' + p.ID + ' @ %d:%d' % self._token_coord(p), p.ID, p.expr)
+      # tuple('const: ' + str(ID) + ' @ lineno:column', type, expr)
 
     # <if_statement> ::= "if" <expr> "{" <statements> "}" { "else" "{" <statements> "}" }?
     @_('IF expr LBRACE statements RBRACE { ELSE LBRACE statements RBRACE }')
@@ -208,7 +210,7 @@ class UCyanParser(Parser):
     @_('TRUE',
        'FALSE')
     def literal(self, p):
-        return ('literal: bool, @ %d:%d' + self._token_coord(p),)
+        return ('literal: bool, @ %d:%d' % self._token_coord(p))
 
     # <location> ::= <identifier>
     @_('ID')

@@ -10,6 +10,7 @@ class UCyanParser(Parser):
         ('left', 'LT', 'GT', 'LE', 'GE'),
         ('left', 'PLUS', 'MINUS'),
         ('left', 'TIMES', 'DIVIDE'),
+        ('right', 'UMINUS'),
         ('right', 'NOT'),
         ('right', 'ELSE'),
     )
@@ -176,7 +177,7 @@ class UCyanParser(Parser):
     #         | "-" <expr>
     #         | "!" <expr>
     @_('PLUS expr',
-       'MINUS expr',
+       'MINUS expr %prec UMINUS',
        'NOT expr')
     def expr(self, p):
         return ('unary_op: ' + p[0] + ' @ %d:%d' %self._token_coord(p), p.expr)

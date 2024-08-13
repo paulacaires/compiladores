@@ -43,10 +43,15 @@ class UCyanParser(Parser):
         return ('program', p.statements)
 
     # <statements> ::= { <statement> }*
-    @_('statement { statement }')
+    @_('statement { statement }',
+       ' ')
     def statements(self, p):
-        return [p.statement0] + p.statement1
-
+        if hasattr(p, 'statement1'):
+          return [p.statement0] + p.statement1
+        elif hasattr(p, 'statement0'):
+          return [p.statement0]
+        else:
+          return []
 
     # <statement> ::= <print_statement>
     #               | <assignment_statement>

@@ -47,6 +47,7 @@ class UCyanParser(Parser):
     def statements(self, p):
         return [p.statement0] + p.statement1
 
+
     # <statement> ::= <print_statement>
     #               | <assignment_statement>
     #               | <variable_definition>
@@ -101,16 +102,22 @@ class UCyanParser(Parser):
     @_('LET type ID EQUALS expr SEMI')
     def const_definition(self, p):
       return ('const: ' + p.ID + ' @ %d:%d' % self._token_coord(p), p.type, p.expr)
+      # tuple('const: ' + str(ID) + ' @ lineno:column', type, expr)
 
     @_('LET ID EQUALS expr SEMI ')
     def const_definition(self, p):
-      return ('const: ' + p.ID + ' @ %d:%d' % self._token_coord(p), p.ID, p.expr)
+      return ('const: ' + p.ID + ' @ %d:%d' % self._token_coord(p), None, p.expr)
       # tuple('const: ' + str(ID) + ' @ lineno:column', type, expr)
 
     # <if_statement> ::= "if" <expr> "{" <statements> "}" { "else" "{" <statements> "}" }?
-    @_('IF expr LBRACE statements RBRACE { ELSE LBRACE statements RBRACE }')
+    @_('IF expr LBRACE statements RBRACE ELSE LBRACE statements RBRACE')
     def if_statement(self, p):
       return ('if @ %d:%d' % self._token_coord(p), p.expr, p.statements0, p.statements1)
+      # tuple('if @ lineno:column', expr, statements0, statements1)
+
+    @_('IF expr LBRACE statements RBRACE')
+    def if_statement(self, p):
+      return ('if @ %d:%d' % self._token_coord(p), p.expr, p.statements, None)
 
     # <while_statement> ::= "while" <expr> "{" <statements> "}"
     @_('WHILE expr LBRACE statements RBRACE')
@@ -120,12 +127,12 @@ class UCyanParser(Parser):
     # <break_statement> ::= "break" ";"
     @_('BREAK SEMI')
     def break_statement(self, p):
-      return ('break @ %d:%d' % self._token_coord(p),)
+      return ('break @ %d:%d' % self._token_coord(p))
 
     # <continue_statement> ::= "continue" ";"
     @_('CONTINUE SEMI')
     def continue_statement(self, p):
-      return ('continue @ %d:%d' % self._token_coord(p),)
+      return ('continue @ %d:%d' % self._token_coord(p))
 
     # <type>     ::= <identifier>
     @_('ID')
@@ -158,7 +165,7 @@ class UCyanParser(Parser):
        'expr OR expr')
     def expr(self, p):
         return ('binary_op: ' + p[1] + ' @ %d:%d' %self._token_coord(p), p.expr0, p.expr1)    
-        # tuple('binary_op: + @ lineno:column', expr0, expr1)   
+        # tuple('binary_op: < @ lineno:column', expr0, expr1)  
         
     # <expr> ::= "+" <expr>
     #         | "-" <expr>
@@ -210,7 +217,7 @@ class UCyanParser(Parser):
     @_('TRUE',
        'FALSE')
     def literal(self, p):
-        return ('literal: bool, @ %d:%d' % self._token_coord(p))
+        return ('literal: bool, ' + p[0] + ' @ %d:%d' % self._token_coord(p))
 
     # <location> ::= <identifier>
     @_('ID')

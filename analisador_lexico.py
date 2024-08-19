@@ -8,7 +8,7 @@ class UCyanLexer(Lexer):
         an error during lexing.
         """
         self.error_func = error_func
-        
+
     # Reserved keywords
     keywords = {
         'print': "PRINT",
@@ -17,6 +17,7 @@ class UCyanLexer(Lexer):
         'var': "VAR",
         'while': "WHILE",
 		'true': "TRUE",
+    'false': "FALSE",
 		'let': "LET",
 		'break': "BREAK",
 		'continue': "CONTINUE"
@@ -26,7 +27,7 @@ class UCyanLexer(Lexer):
     tokens = tuple(keywords.values()) + (
         # Identifiers
         "ID",
-        "VAR", 
+        "VAR",
         # constants
         "FLOAT_CONST",
         "INT_CONST",
@@ -48,7 +49,10 @@ class UCyanLexer(Lexer):
 		"RPAREN",
 		"GT",
 		"AND",
-		"ERROR_UNTERM_COMMENT"
+		"ERROR_UNTERM_COMMENT",
+    "NE",
+    "OR",
+    "NOT"
     )
 
     # String containing ignored characters (between tokens)
@@ -57,7 +61,7 @@ class UCyanLexer(Lexer):
     # Other ignored patterns
     ignore_newline = r"\n"
     ignore_comment = r"\/{2}.*|\/\*(.|\n)*?\*\/"
-	
+
     # Regular expression rules for tokens
     ID = r"[a-zA-Z_][a-zA-Z0-9_]*"
     FLOAT_CONST = r"[0-9]+.[0-9]+"
@@ -65,6 +69,9 @@ class UCyanLexer(Lexer):
     CHAR_CONST = r"'.*(\\n)?'" #PROBLEMAS: print 'BLABLA' não pode, tem que ser um só
     ERROR_UNTERM_COMMENT = r"\/\*.*"
     EQ = r'=='
+    NE = r'\!\='
+    NOT = r'\!'
+    OR = r'\|\|'
     EQUALS = r"="
     SEMI = r";"
     # <= deve vir aqui!
@@ -81,7 +88,7 @@ class UCyanLexer(Lexer):
     RPAREN = r"\)"
     GT = r">"
     AND = r"&&"
-     
+
     # Special cases
     def ID(self, t):
       t.type = self.keywords.get(t.value, "ID")
@@ -90,7 +97,7 @@ class UCyanLexer(Lexer):
     # Define a rule so we can track line numbers
     def ignore_newline(self, t):
       self.lineno += len(t.value)
- 
+
     def ignore_comment(self, t):
       self.lineno += t.value.count("\n")
 
@@ -108,15 +115,15 @@ class UCyanLexer(Lexer):
     def _make_location(self, token):
         return token.lineno, self.find_column(token)
 
-    # Error handling rule    
+    # Error handling rule
     def ERROR_UNTERM_COMMENT(self, t):
 	    msg = "Unterminated comment"
 	    self._error(msg, t)
-    
+
     def error(self, t):
         msg = "Illegal character %s" % repr(t.value[0])
         self._error(msg, t)
-        
+
     def error_char(self, t):
         msg = "lineno: Unterminated character const"
         self._error(msg, t)

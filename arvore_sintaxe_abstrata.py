@@ -125,7 +125,8 @@ class UCyanParser(Parser):
     # <assignment_statement> ::= <location> "=" <expr> ";"
     @_('location EQUALS expr SEMI')
     def assign_statement(self, p):
-        return AssignmentStatement(p.location, p.expr, coord=self._token_coord(p))
+        # AssignmentStatement(location, expr, coord=(lineno, column)) 
+        return AssignmentStatement(location = p.location, expression = p.expr, coord=self._token_coord(p))
 
 
 

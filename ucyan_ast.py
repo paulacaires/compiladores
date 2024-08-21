@@ -146,13 +146,15 @@ class NodeVisitor:
             self.visit(child)
 
 
+
 class AssignmentStatement(Node):
   __slots__ = ("location", "expression",)
 
-  def __init__(self, location, expression, coord):
-    super().__init__()
+  def __init__(self, location, expression, coord=None):
+    super().__init__(coord)
     self.location = location
     self.expression = expression
+    
 
   def children(self):
     nodelist = []
@@ -162,11 +164,14 @@ class AssignmentStatement(Node):
       nodelist.append(('expression', self.expression))
     return tuple(nodelist)
 
+
+
+
 class BinaryOp(Node):
 
     __slots__ = ("op", "left", "right",)
 
-    def __init__(self, op, left, right, coord):
+    def __init__(self, op, left, right, coord=None):
         super().__init__(coord)
         self.op = op
         self.left = left
@@ -182,67 +187,105 @@ class BinaryOp(Node):
 
     attr_names = ("op",)
 
+
+
+
 class BreakStatement(Node):
-  pass
-    # <<< YOUR CODE HERE >>>
+
+    # Pode estar errado
+    __slots__ = ()
+
+    def __init__(self, op, left, right, coord=None):
+        super().__init__(coord)
+
+    def children(self):
+        nodelist = []
+        return tuple(nodelist)
+
+    attr_names = ()
+
+
+
 
 class ConstDefinition(Node):
   pass
     # <<< YOUR CODE HERE >>>
 
+
+
+
 class ContinueStatement(Node):
   pass
     # <<< YOUR CODE HERE >>>
 
+
+
+
 class ExpressionAsStatement(Node):
   __slots__ = ("expression",)
 
-  def __init__(self, expression):
-    super().__init__()
+  def __init__(self, expression, coord=None):
+    super().__init__(coord)
     self.expression = expression
 
   def children(self):
     nodelist = []
     if self.expression is not None:
-      nodelist.append(('location', self.expression))
+      nodelist.append(('expression', self.expression))
     return tuple(nodelist)
+
+  attr_names = ()
+
+
+
 
 class IfStatement(Node):
   pass
     # <<< YOUR CODE HERE >>>
 
+
+
+
 class Literal(Node):
 
     __slots__ = ("type", "value",)
 
-    def __init__(self, type, value, coord):
+    def __init__(self, type, value, coord=None):
         super().__init__(coord)
         self.type = type
         self.value = value
 
     def children(self):
-        return ()
+        nodelist = []
+        return tuple(nodelist)
 
     attr_names = ("type", "value",)
+
+
+
 
 class Location(Node):
 
     __slots__ = ("name",)
 
-    def __init__(self, name, coord):
-      super().__init__()
+    def __init__(self, name, coord=None):
+      super().__init__(coord)
       self.name = name
 
     def children(self):
-      return ()
+      nodelist = []
+      return tuple(nodelist)
 
     attr_names = ("name",)
+
+
+
 
 class PrintStatement(Node):
   __slots__ = ("expression",)
 
-  def __init__(self, expression, coord):
-    super().__init__()
+  def __init__(self, expression, coord=None):
+    super().__init__(coord)
     self.expression = expression
 
   def children(self):
@@ -250,6 +293,9 @@ class PrintStatement(Node):
     if self.expression is not None:
         nodelist.append(('expression', self.expression))
     return tuple(nodelist)
+
+
+
 
 class Program(Node):
 
@@ -265,27 +311,40 @@ class Program(Node):
             nodelist.append(('statements[%d]' % i, child))
         return tuple(nodelist)
 
+    attr_names = ()
+
+
+
+
 class Type(Node):
   __slots__ = ("name",)
 
-  def __init__(self, name, coord):
-    super().__init__()
+  def __init__(self, name, coord=None):
+    super().__init__(coord)
     self.name = name
 
   def children(self):
-    return ()
+    nodelist = []
+    return tuple(nodelist)
 
   attr_names = ("name",)
+
+
+
 
 class UnaryOp(Node):
   pass
     # <<< YOUR CODE HERE >>>
 
+
+
+
 class VarDefinition(Node):
+
   __slots__ = ("name", "dtype", "expression",)
 
-  def __init__(self, name, dtype, expression, coord):
-    super().__init__()
+  def __init__(self, name, dtype, expression, coord=None):
+    super().__init__(coord)
     self.name = name
     self.dtype = dtype
     self.expression = expression
@@ -301,18 +360,20 @@ class VarDefinition(Node):
   attr_names = ("name",)
 
 
+
+
 class WhileStatement(Node):
   __slots__ = ("test", "body",)
 
-  def __init__(self, test, body, coord):
-    super().__init__()
+  def __init__(self, test, body, coord=None):
+    super().__init__(coord)
     self.test = test
     self.body = body
 
   def children(self):
     nodelist = []
     if self.test is not None:
-      nodelist.append(('test', self.expressaoRelacional))
+      nodelist.append(('test', self.test))
     if self.body is not None:
-      nodelist.append(('body', self.comando))
+      nodelist.append(('body', self.body))
     return tuple(nodelist)

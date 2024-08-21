@@ -148,6 +148,7 @@ class NodeVisitor:
 
 
 class AssignmentStatement(Node):
+
   __slots__ = ("location", "expression",)
 
   def __init__(self, location, expression, coord=None):
@@ -160,7 +161,7 @@ class AssignmentStatement(Node):
     nodelist = []
     if self.location is not None:
       nodelist.append(('location', self.location))
-    if self.expressaoAritmetica is not None:
+    if self.expression is not None:
       nodelist.append(('expression', self.expression))
     return tuple(nodelist)
 
@@ -256,8 +257,7 @@ class Literal(Node):
         self.value = value
 
     def children(self):
-        nodelist = []
-        return tuple(nodelist)
+        return tuple()
 
     attr_names = ("type", "value",)
 
@@ -375,5 +375,6 @@ class WhileStatement(Node):
     if self.test is not None:
       nodelist.append(('test', self.test))
     if self.body is not None:
-      nodelist.append(('body', self.body))
+      for i, child in enumerate(self.body or []):
+        nodelist.append(('body[%d]' % i, child))
     return tuple(nodelist)

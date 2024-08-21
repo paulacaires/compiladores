@@ -250,8 +250,8 @@ class UCyanParser(Parser):
 
     # <continue_statement> ::= "continue" ";"
     @_('CONTINUE SEMI')
-    def continue_statement(self, p):
-      return ContinueStatement(coord=self._token_coord(p))
+    def continue_statement(self, pcoord=self._token_coord(p)):
+      return ContinueStatement()
 
 
 

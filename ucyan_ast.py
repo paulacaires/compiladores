@@ -193,31 +193,47 @@ class BinaryOp(Node):
 
 class BreakStatement(Node):
 
-    # Pode estar errado
-    __slots__ = ()
-
-    def __init__(self, op, left, right, coord=None):
+    def __init__(self, coord=None):
         super().__init__(coord)
 
     def children(self):
         nodelist = []
         return tuple(nodelist)
 
-    attr_names = ()
 
 
 
 
 class ConstDefinition(Node):
-  pass
-    # <<< YOUR CODE HERE >>>
+    __slots__ = ("name", "dtype", "expression",)
+
+    def __init__(self, name, dtype, expression, coord=None):
+        super().__init__(coord)
+        self.name = name
+        self.dtype = dtype
+        self.expression = expression
+
+    def children(self):
+        nodelist = []
+        if self.dtype is not None:
+            nodelist.append(('dtype', self.dtype))
+        if self.expression is not None:
+            nodelist.append(('expression', self.expression))
+        return tuple(nodelist)
+
+    attr_names = ("name",)
 
 
 
 
 class ContinueStatement(Node):
-  pass
-    # <<< YOUR CODE HERE >>>
+  
+    def __init__(self, coord=None):
+        super().__init__(coord)
+
+    def children(self):
+        nodelist = []
+        return tuple(nodelist)
 
 
 
@@ -241,9 +257,29 @@ class ExpressionAsStatement(Node):
 
 
 class IfStatement(Node):
-  pass
-    # <<< YOUR CODE HERE >>>
+    __slots__ = ("test", "consequence", "alternative",)
 
+    def __init__(self, test, consequence, alternative, coord=None):
+        super().__init__(coord)
+        self.test = test
+        self.consequence = consequence
+        self.alternative = alternative
+
+    def children(self):
+      nodelist = []
+
+      if self.test is not None:
+        nodelist.append(('test', self.test))
+
+      if self.consequence is not None:
+        for i, child in enumerate(self.consequence or []):
+          nodelist.append(('consequence[%d]' % i, child))
+
+      if self.alternative is not None:
+        for i, child in enumerate(self.alternative or []):
+          nodelist.append(('alternative[%d]' % i, child))
+
+      return tuple(nodelist)
 
 
 
@@ -282,6 +318,7 @@ class Location(Node):
 
 
 class PrintStatement(Node):
+
   __slots__ = ("expression",)
 
   def __init__(self, expression, coord=None):
@@ -317,6 +354,7 @@ class Program(Node):
 
 
 class Type(Node):
+
   __slots__ = ("name",)
 
   def __init__(self, name, coord=None):
@@ -333,8 +371,21 @@ class Type(Node):
 
 
 class UnaryOp(Node):
-  pass
-    # <<< YOUR CODE HERE >>>
+
+    __slots__ = ("op", "operand",)
+
+    def __init__(self, op, operand, coord=None):
+        super().__init__(coord)
+        self.op = op
+        self.operand = operand
+
+    def children(self):
+        nodelist = []
+        if self.operand is not None:
+            nodelist.append(('operand', self.operand))
+        return tuple(nodelist)
+
+    attr_names = ("op",)
 
 
 
